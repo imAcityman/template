@@ -1,0 +1,72 @@
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
+
+import com.yzch.configuration.dto.DtoTable;
+import com.yzch.configuration.dto.IDtoRow;
+import com.yzch.configuration.dto.domain.PageContext;
+import com.yzch.configuration.dto.domain.Paginations;
+import com.yzch.configuration.result.JsonResultBuilder;
+import com.yzch.configuration.result.LayuiTable;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import javax.annotation.Resource;
+import static com.yzch.configuration.result.ResultConstants.FILL;
+import static com.yzch.configuration.result.ResultConstants.JSON;
+import static com.yzch.configuration.result.ResultParameters.getPageable;
+import static com.yzch.configuration.result.ResultParameters.put;
+import static com.yzch.configuration.result.ResultParameters.setJson;
+    
+    @Controller
+    @RequestMapping("")
+    public class ${NAME}Controller {
+    
+        @Resource
+        private ${NAME}Service i${NAME}Service;
+        
+        @RequestMapping("list${NAME}")
+        public String list${NAME} (){
+            return FILL;
+        }
+
+        @RequestMapping("doList${NAME}")
+        public String doList${NAME} (PageContext pageContext){
+            Paginations paginations = getPageable(pageContext);
+            Page<IDtoRow> page = i${NAME}Service.list${NAME}(paginations);
+            LayuiTable<IDtoRow> layuiTable = new LayuiTable<IDtoRow>(page);
+            setJson(layuiTable);
+            return JSON;
+        }
+
+        @RequestMapping("create${NAME}")
+        public String create${NAME} (){
+            return FILL;
+        }
+
+        @RequestMapping("doCreate${NAME}")
+        public String doCreate${NAME} (){
+            i${NAME}Service.doCreate${NAME}();
+            setJson(JsonResultBuilder.success(true).msg("新增成功").json());
+            return JSON;
+        }
+
+        @RequestMapping("modify${NAME}")
+        public String modify${NAME} (String id){
+            IDtoRow row = i${NAME}Service.get${NAME}ById(id);
+            put("${NAME}",row);
+            return FILL;
+        }
+
+        @RequestMapping("doModify${NAME}")
+        public String doModify${NAME} (){
+            i${NAME}Service.doModify${NAME}();
+            setJson(JsonResultBuilder.success(true).msg("修改成功").json());
+            return JSON;
+        }
+
+        @RequestMapping("doRemove${NAME}")
+        public String doRemove${NAME} (String id){
+            i${NAME}Service.doRemove${NAME}(id);
+            setJson(JsonResultBuilder.success(true).msg("删除成功").json());
+            return JSON;
+        }
+    }
