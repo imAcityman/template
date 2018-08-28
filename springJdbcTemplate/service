@@ -1,0 +1,71 @@
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
+
+import com.yzch.configuration.dto.DtoTable;
+import com.yzch.configuration.dto.IDtoRow;
+import com.yzch.configuration.dto.domain.Paginations;
+import com.yzch.configuration.template.JdbcTemplateHelper;
+import com.yzch.forge.utils.Contants;
+import com.yzch.forge.utils.ParamUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Service;
+import javax.annotation.Resource;
+import java.util.HashMap;
+
+    @Service
+    public class ${NAME}Service{
+    
+        @Resource
+        private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+        @Resource
+        private JdbcTemplate jdbcTemplate;
+        
+        public Page<IDtoRow> list${NAME}(Paginations paginations) {
+            int start = paginations.getNatureStart();
+            int end = paginations.getNatureEnd();
+            // 1、组装hashMap
+            HashMap<String, Object> paramMap = Contants.objectToMap();
+            paramMap.put("start", start);
+            paramMap.put("end", end);
+
+            String sql = "";
+            if (ParamUtil.isNotEmpty()) {
+                sql += " and ";
+            }
+            sql += " order by  ";
+
+            StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append("select * from ( select a.*,rownum rn from (" + sql);
+            stringBuffer.append(" ) a where rownum <= :end) where rn>= :start ");
+            DtoTable table = namedParameterJdbcTemplate.query(stringBuffer.toString(), paramMap, JdbcTemplateHelper.getDtoTableExtractor());
+
+            StringBuffer sbcount = new StringBuffer();
+            sbcount.append(" select count(1) as n from ( " + sql);
+            sbcount.append(") ");
+            int total = namedParameterJdbcTemplate.queryForObject(sbcount.toString(), paramMap, Integer.class);
+            Page<IDtoRow> page = new PageImpl<IDtoRow>(table, paginations, total);
+            return page;
+        }
+
+        public IDtoRow get${NAME}ById(String id) {
+            String sql = "";
+            return jdbcTemplate.query(sql,JdbcTemplateHelper.getDtoRowMapper(),id);
+        }
+
+        public void doCreate${NAME}() {
+            String sql = "";
+            namedParameterJdbcTemplate.query(sql,JdbcTemplateHelper.getDtoRowMapper());
+        }
+
+        public void doModify${NAME}() {
+            String sql = "";
+            namedParameterJdbcTemplate.query(sql,JdbcTemplateHelper.getDtoRowMapper());
+        }
+
+        public void doRemove${NAME}(String id) {
+            String sql = "";
+            jdbcTemplate.query(sql,JdbcTemplateHelper.getDtoRowMapper(),id);
+        }
+    }
